@@ -31,6 +31,7 @@
 
 #define READ(IO)                digitalRead(IO)
 #define WRITE(IO,V)             digitalWrite(IO,V)
+#define WRITE_VAR(IO,V)         WRITE(IO,V)
 
 #define _GET_MODE(IO)
 #define _SET_MODE(IO,M)         pinMode(IO, M)

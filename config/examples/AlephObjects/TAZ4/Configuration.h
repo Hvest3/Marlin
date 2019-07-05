@@ -258,16 +258,7 @@
  */
 //#define MAGNETIC_SWITCHING_TOOLHEAD
 
-/**
- * Electromagnetic Switching Toolhead
- *
- * Parking for CoreXY / HBot kinematics.
- * Toolheads are parked at one edge and held with an electromagnet.
- * Supports more than 2 Toolheads. See https://youtu.be/JolbsAKTKf4
- */
-//#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
-
-#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+#if EITHER(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
   #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
   #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
   #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
@@ -278,8 +269,6 @@
   #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
     #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
     #define SWITCHING_TOOLHEAD_X_SECURITY   -35         // (mm) Security distance X axis
-  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
   #endif
 #endif
 
@@ -312,20 +301,22 @@
 // @section machine
 
 /**
- * Power Supply Control
+ * Select your power supply here. Use 0 if you haven't connected the PS_ON_PIN
  *
- * Enable and connect the power supply to the PS_ON_PIN.
- * Specify whether the power supply is active HIGH or active LOW.
+ * 0 = No Power Switch
+ * 1 = ATX
+ * 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
+ *
+ * :{ 0:'No power switch', 1:'ATX', 2:'X-Box 360' }
  */
-#define PSU_CONTROL
-//#define PSU_NAME "Power Supply"
+#define POWER_SUPPLY 1
 
-#if ENABLED(PSU_CONTROL)
-  #define PSU_ACTIVE_HIGH false // Set 'false' for ATX (1), 'true' for X-Box (2)
+#if POWER_SUPPLY > 0
+  // Enable this option to leave the PSU off at startup.
+  // Power to steppers and heaters will need to be turned on with M80.
+  //#define PS_DEFAULT_OFF
 
-  //#define PS_DEFAULT_OFF      // Keep power off until enabled directly with M80
-
-  //#define AUTO_POWER_CONTROL  // Enable automatic control of the PS_ON pin
+  //#define AUTO_POWER_CONTROL        // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS           // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
@@ -335,6 +326,7 @@
     //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU over this temperature
     #define POWER_TIMEOUT 30
   #endif
+
 #endif
 
 // @section temperature
@@ -759,15 +751,9 @@
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
 
-/**
- * Junction Deviation
- *
- * Use Junction Deviation instead of traditional Jerk Limiting
- *
- * See:
- *   https://reprap.org/forum/read.php?1,739819
- *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
- */
+//
+// Use Junction Deviation instead of traditional Jerk Limiting
+//
 //#define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
   #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
@@ -873,13 +859,12 @@
  * on the right, enable and set TOUCH_MI_DEPLOY_XPOS to the deploy position.
  *
  * Also requires: BABYSTEPPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
- *                and a minimum Z_HOMING_HEIGHT of 10.
+ *                MIN_PROBE_EDGE, and a minimum Z_HOMING_HEIGHT of 10.
  */
 //#define TOUCH_MI_PROBE
 #if ENABLED(TOUCH_MI_PROBE)
   #define TOUCH_MI_RETRACT_Z 0.5                  // Height at which the probe retracts
   //#define TOUCH_MI_DEPLOY_XPOS (X_MAX_BED + 2)  // For a magnet on the right side of the bed
-  //#define TOUCH_MI_MANUAL_DEPLOY                // For manual deploy (LCD menu)
 #endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)

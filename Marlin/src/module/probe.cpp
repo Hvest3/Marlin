@@ -109,26 +109,10 @@ float zprobe_zoffset; // Initialized by settings.load()
   void run_deploy_moves_script() {
     #ifndef TOUCH_MI_DEPLOY_XPOS
       #define TOUCH_MI_DEPLOY_XPOS 0
-    #elif TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
+    #elif X_HOME_DIR > 0 && TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
       TemporaryGlobalEndstopsState unlock_x(false);
     #endif
-
-    #if ENABLED(TOUCH_MI_MANUAL_DEPLOY)
-      const screenFunc_t prev_screen = ui.currentScreen;
-      LCD_MESSAGEPGM(MSG_MANUAL_DEPLOY_TOUCHMI);
-      ui.return_to_status();
-
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true; // LCD click or M108 will clear this
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), PSTR("Continue"));
-      #endif
-      while (wait_for_user) idle();
-      ui.reset_status();
-      ui.goto_screen(prev_screen);
-    #else
-      do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
-    #endif
+    do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
   }
 
   // Move down to the bed to stow the probe
@@ -319,7 +303,7 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
-      #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
+      #if DISABLED(DELTA, HOME_AFTER_DEACTIVATE)
         disable_X(); disable_Y();
       #endif
     #endif
@@ -444,7 +428,7 @@ bool set_probe_deployed(const bool deploy) {
   #endif
 
   if (deploy_stow_condition && unknown_condition)
-    do_probe_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    do_probe_raise(MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
     #if ENABLED(Z_PROBE_SLED)
@@ -780,7 +764,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   const float nz =
     #if ENABLED(DELTA)
       // Move below clip height or xy move will be aborted by do_blocking_move_to
-      _MIN(current_position[Z_AXIS], delta_clip_start_height)
+      MIN(current_position[Z_AXIS], delta_clip_start_height)
     #else
       current_position[Z_AXIS]
     #endif

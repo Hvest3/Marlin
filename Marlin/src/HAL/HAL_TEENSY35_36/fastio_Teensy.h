@@ -71,6 +71,7 @@
 
 #define READ(IO)              _READ(IO)
 
+#define WRITE_VAR(IO,V)       _WRITE_VAR(IO,V)
 #define WRITE(IO,V)           _WRITE(IO,V)
 #define TOGGLE(IO)            _TOGGLE(IO)
 
